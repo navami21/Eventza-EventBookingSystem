@@ -1,0 +1,38 @@
+.profile{
+    font-weight: bold;
+
+}
+.profile:hover{
+    background-color: indianred !important;
+    color: aliceblue !important;
+}
+.navbar{
+    background-color: #574964 !important;
+    color: aliceblue !important;
+    font-weight: 600 !important;
+    gap: 5px !important;
+}
+.nav-drop::before:hover{
+    background-color: #AF3E3E !important;
+    color:black !important;
+    font-weight: 500;
+    color: aliceblue !important;
+}
+.nav-drop:hover{
+    background-color: #AF3E3E !important;
+    color: white !important;
+    font-weight: 500;
+}
+.logo-font {
+    font-family: 'Pacifico', cursive;
+    font-size: 1.5rem;
+    color: white; /* bootstrap primary blue */
+    font-weight: 700;
+    letter-spacing: 2px;
+    user-select: none; /* optional */
+  }
+  .drop-logout-item:hover{
+    background-color: #7f55b1 !important;
+    color: #fefbfb  !important;
+    font-weight: 600;
+  }

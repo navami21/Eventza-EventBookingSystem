@@ -1,0 +1,15 @@
+h2.text-primary {
+    color: #7F55B1 !important;
+  }
+  
+  ul li i {
+    font-size: 1.2rem;
+  }
+  .icon-color{
+    color: #7F55B1;
+  }
+  .bi1:hover , .bi2:hover ,.b13:hover{
+    background-color: #acacf1;
+    color: black;
+    border-radius: 100px;
+  }

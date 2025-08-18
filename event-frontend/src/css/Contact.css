@@ -1,0 +1,52 @@
+.btn-contact{
+    background-color: #7f55b1 !important;
+    color: aliceblue !important;
+}
+h3{
+    color: #7f55b1 !important;
+}
+.icon1{
+    color: #7f55b1;
+}
+/* Contact.css */
+
+/* This class wraps the entire PublicContact component and applies the gradient.
+   It ensures the gradient is specific to this component's rendering area. */
+   .public-contact-page {
+    background: linear-gradient(to right, #e0bbe4, #957dad); /* A purple pastel gradient */
+    min-height: 100vh; /* Ensures the gradient covers the full viewport height it occupies */
+    width: 100%; /* Ensures it takes full width */
+    margin: 0; /* Remove default margin */
+    display: flex; /* Use flexbox for centering content */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    /* If this component is not directly rendered at the root, ensure its parent
+       allows it to take up the necessary height (e.g., parent also has min-height: 100vh or similar) */
+  }
+  
+  /* Optional: Styles for the card to ensure it stands out against the background */
+  .public-contact-card {
+    background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent white for the card */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Style for the Send Message button */
+  .public-contact-btn-submit {
+    background-color: #7f55b1 !important; 
+    color: white !important;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .public-contact-btn-submit:hover {
+    background-color: #e0bbe4 !important; /* Lighter shade on hover */
+    color: #333 !important;
+  }
+  
+  /* Style for the chat icon */
+  .public-contact-icon {
+    color: #957dad; /* Matches the button color for consistency */
+  }

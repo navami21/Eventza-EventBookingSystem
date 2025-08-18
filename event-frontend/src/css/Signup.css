@@ -1,0 +1,74 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body.signup-bg {
+    min-height: 100vh;
+    background: linear-gradient(to right, #e0bbe4, #957dad) !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  /* Centering the card and controlling its size */
+  .signup-card {
+    background: #ffffff;
+    width: 100%;
+    max-width: 500px; /* increased width */
+    padding: 2rem 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    border: none;
+    margin-bottom: 2rem;
+    padding-bottom: 20px;
+    overflow: visible; /* remove internal scroll */
+  }
+  
+  /* Form elements uniformity */
+  .signup-card input.form-control,
+  .signup-card select.form-control {
+    padding: 0.6rem 0.9rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 0.95rem;
+  }
+  
+  .btn-success {
+    background-color: #7f55b1 !important;
+    border: none;
+    font-weight: 600;
+    border-radius: 50px;
+    padding: 10px 0;
+    transition: background 0.3s ease;
+  }
+  
+  .btn-success:hover {
+    background-color: #683fa3;
+  }
+  
+  /* Nav tab styling */
+  .nav-tabs .nav-link {
+    border: none;
+    color: #7f55b1;
+    font-weight: 600;
+  }
+  .nav-tabs .nav-link.active {
+    background-color: #7f55b1;
+    color: white;
+    border-radius: 10px;
+  }
+  
+  /* Remove scrollbar from form */
+  form {
+    max-height: none !important;
+    overflow-y: visible !important;
+  }
+  
+  /* Link style */
+  a.text-decoration-none {
+    color: #7f55b1;
+  }
+  a.text-decoration-none:hover {
+    text-decoration: underline;
+  }
+  
