@@ -55,7 +55,7 @@ router.get('/', async (req, res) => {
   const query = {};
 
   if (search) {
-    const regex = new RegExp(search, 'i'); // case-insensitive
+    const regex = new RegExp(search, 'i'); 
     query.$or = [
       { title: regex },
       { description: regex }
@@ -106,6 +106,7 @@ router.put('/:id', protect, adminOnly, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
 // Controller gets their assigned events
 router.get('/controller/assigned-events', protect, async (req, res) => {
   if (req.user.role !== 'controller') {

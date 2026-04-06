@@ -138,29 +138,8 @@ const Signup = () => {
           </div>
           {activeTab === 'user' && (
             <>
-              <div className="mb-3">
-                <select
-                  className="form-control"
-                  value={securityQuestion}
-                  onChange={(e) => setSecurityQuestion(e.target.value)}
-                  required
-                >
-                  <option value="">Select a security question</option>
-                  <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
-                  <option value="What was the name of your first pet?">What was the name of your first pet?</option>
-                  <option value="What city were you born in?">What city were you born in?</option>
-                </select>
-              </div>
-              <div className="mb-3">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Your Answer"
-                  value={securityAnswer}
-                  onChange={(e) => setSecurityAnswer(e.target.value)}
-                  required
-                />
-              </div>
+              
+              
             </>
           )}
 

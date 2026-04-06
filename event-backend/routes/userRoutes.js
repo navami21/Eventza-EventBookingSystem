@@ -8,12 +8,12 @@ const bcrypt=require('bcrypt')
 
 //user signup
 router.post('/signup',async(req,res)=>{
-    const {name,email,password, securityQuestion, securityAnswer}=req.body;
+    const {name,email,password}=req.body;
     
     try{
         const exists=await User.findOne({email});
         if(exists) return res.status(400).json({message:'Email already registered'})
-        const user=await User.create({name,email,password,role:'user',securityQuestion,securityAnswer})
+        const user=await User.create({name,email,password,role:'user'})
         const token=generateToken(user);
         res.status(201).json({token,user:{id:user._id,name:user.name,role:user.role}})
     } catch(err){
@@ -22,6 +22,7 @@ router.post('/signup',async(req,res)=>{
 })
 // Controller signup (will be pending approval)
 router.post('/controller/signup', async (req, res) => {
+  console.log("Controller signup hit:", req.body);
   const { name, email, password } = req.body;
   try {
     const exists = await User.findOne({ email });
@@ -145,6 +146,7 @@ router.get('/pending-controllers', protect, adminOnly, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
 // POST request to approve a controller
 router.post('/approve-controller/:id', protect, adminOnly, async (req, res) => {
   try {

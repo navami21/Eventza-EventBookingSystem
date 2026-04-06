@@ -6,6 +6,24 @@ const Booking = require('../model/bookingData');
 const bookEvent = require('../utils/bookEvent');
 
 // Book a FREE event (no payment required)
+// router.post('/:eventId', protect, async (req, res) => {
+//   try {
+//     const { eventId } = req.params;
+//     const { seats } = req.body;
+
+//     const event = await Event.findById(eventId);
+//     if (!event) return res.status(404).json({ message: 'Event not found' });
+
+//     if (event.isPaid) {
+//       return res.status(400).json({ message: 'Paid event. Please complete payment to book.' });
+//     }
+
+//     const booking = await bookEvent({ eventId, user: req.user, seats });
+//     res.status(200).json({ message: 'Booking successful', booking });
+//   } catch (err) {
+//     res.status(400).json({ message: err.message });
+//   }
+// });
 router.post('/:eventId', protect, async (req, res) => {
   try {
     const { eventId } = req.params;
@@ -14,8 +32,19 @@ router.post('/:eventId', protect, async (req, res) => {
     const event = await Event.findById(eventId);
     if (!event) return res.status(404).json({ message: 'Event not found' });
 
+    // ⛔ Prevent booking expired events
+    const now = new Date();
+    const eventStart = new Date(event.startTime);
+    const eventEnd = event.endTime ? new Date(event.endTime) : null;
+
+    if (eventEnd ? eventEnd < now : eventStart < now) {
+      return res.status(400).json({ message: 'This event has expired. Booking not allowed.' });
+    }
+
     if (event.isPaid) {
-      return res.status(400).json({ message: 'Paid event. Please complete payment to book.' });
+      return res
+        .status(400)
+        .json({ message: 'Paid event. Please complete payment to book.' });
     }
 
     const booking = await bookEvent({ eventId, user: req.user, seats });
@@ -24,6 +53,7 @@ router.post('/:eventId', protect, async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 });
+
 
 // View user's bookings
 router.get('/my', protect, async (req, res) => {

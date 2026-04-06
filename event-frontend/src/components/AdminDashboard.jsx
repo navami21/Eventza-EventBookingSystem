@@ -1,8 +1,12 @@
-// import React, { useEffect, useState } from 'react';
+
+
 import axiosInstance from '../axiosinterceptor';
 import { useNavigate } from 'react-router-dom';
 import '../css/EventForm.css';
+import '../css/AdminDashboard.css';
 import { useEffect, useState } from 'react';
+import "bootstrap-icons/font/bootstrap-icons.css";
+import { Modal, Button } from 'react-bootstrap';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -12,7 +16,14 @@ const AdminDashboard = () => {
   const [loadingEvents, setLoadingEvents] = useState(false);
   const [loadingControllers, setLoadingControllers] = useState(false);
   const [error, setError] = useState('');
-  const [showControllers, setShowControllers] = useState(false); // ⬅️ Toggle state
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Modals
+  const [showControllerModal, setShowControllerModal] = useState(false);
+  const [selectedController, setSelectedController] = useState(null);
+
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   const fetchEvents = async () => {
     setLoadingEvents(true);
@@ -40,38 +51,35 @@ const AdminDashboard = () => {
     }
   };
 
-  const approveController = async (id) => {
+  const handleApprove = async () => {
+    if (!selectedController) return;
     try {
-      await axiosInstance.post(`/users/approve-controller/${id}`);
+      await axiosInstance.post(`/users/approve-controller/${selectedController._id}`);
+      setShowControllerModal(false);
       fetchPendingControllers();
     } catch (err) {
       setError('Failed to approve controller');
     }
   };
 
-  const rejectController = async (id) => {
-    if (window.confirm('Are you sure you want to reject this controller?')) {
-      try {
-        await axiosInstance.delete(`/users/reject-controller/${id}`);
-        fetchPendingControllers();
-      } catch (err) {
-        setError('Failed to reject controller');
-      }
+  const handleReject = async () => {
+    if (!selectedController) return;
+    if (!window.confirm('Are you sure you want to reject this controller?')) return;
+    try {
+      await axiosInstance.delete(`/users/reject-controller/${selectedController._id}`);
+      setShowControllerModal(false);
+      fetchPendingControllers();
+    } catch (err) {
+      setError('Failed to reject controller');
     }
   };
 
-  useEffect(() => {
-    fetchEvents();
-    fetchPendingControllers();
-  }, []);
   const deleteEvent = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this event?')) {
-      return;
-    }
+    if (!window.confirm('Are you sure you want to delete this event?')) return;
     try {
       await axiosInstance.delete(`/events/${id}`);
-      setEvents((prevEvents) => prevEvents.filter((event) => event._id !== id));
-    } catch (error) {
+      setEvents((prev) => prev.filter((event) => event._id !== id));
+    } catch (err) {
       setError('Failed to delete event');
     }
   };
@@ -81,67 +89,79 @@ const AdminDashboard = () => {
     fetchPendingControllers();
   }, []);
 
-  // ... your return JSX, where you have
-  // onClick={() => deleteEvent(event._id)} for the Delete button
+  const filteredEvents = events.filter((event) =>
+    event.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const isExpired = (eventDate) => new Date(eventDate) < new Date();
 
   return (
     <div className="container my-4 text-dark">
-      <h1 className="mb-4">Admin Dashboard</h1>
+      <h1 className="mb-4 text-center">Admin Dashboard</h1>
 
       {error && <div className="alert alert-danger">{error}</div>}
 
       <div className="row">
         {/* Events Section */}
-        <div className="col-md-7 mb-4">
-          <h2>All Events</h2>
+        <div className="col-lg-8 col-md-12 mb-4">
+          <h2 className="mb-3">All Events</h2>
+
+          <div className="input-group mb-4 shadow-sm rounded">
+            <span className="input-group-text bg-white">
+              <i className="bi bi-search"></i>
+            </span>
+            <input
+              type="text"
+              className="form-control border-start-0"
+              placeholder="Search events..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
           {loadingEvents ? (
             <div className="d-flex justify-content-center my-5">
               <div className="spinner-border text-primary" role="status" />
             </div>
-          ) : events.length === 0 ? (
-            <p>No events found.</p>
+          ) : filteredEvents.length === 0 ? (
+            <p className="text-muted">No events found.</p>
           ) : (
-            <div className="list-group">
-              {events.map((event) => (
-                <div
-                  key={event._id}
-                  className="list-group-item list-group-item-action flex-column align-items-start"
-                >
-                  <div className="d-flex w-100 justify-content-between">
-                    <h5>{event.title}</h5>
-                    <small>{new Date(event.startTime).toLocaleString()}</small>
-                  </div>
-                  {event.image && (
-                    <img
-                      src={event.image}
-                      alt={event.title}
-                      className="img-fluid mb-2"
-                      style={{
-                        maxHeight: '200px',
-                        objectFit: 'cover',
-                        borderRadius: '10px',
-                      }}
-                    />
-                  )}
-                  <p>{event.description}</p>
-                  <p>Capacity: {event.capacity}</p>
-                  <small>Location: {event.location}</small>
-                  <div>
-                  <small>Payment: {event.isPaid ? `₹${event.price}` : 'Free'}</small>
-                  </div>
-                  <div className="mt-2">
-                    <button
-                      className="btn btn-sm btn-primary"
-                      onClick={() => navigate(`/events/${event._id}/edit`)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="btn btn-sm btn-danger ms-2"
-                      onClick={() => deleteEvent(event._id)}
-                    >
-                      Delete
-                    </button>
+            <div className="row row-cols-1 row-cols-md-2 row-cols-lg-2 g-4">
+              {filteredEvents.map((event) => (
+                <div key={event._id} className="col">
+                  <div
+                    className={`card shadow-sm h-100 hover-card ${isExpired(event.startTime) ? 'expired-card' : ''}`}
+                    onClick={() => { setSelectedEvent(event); setShowEventModal(true); }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {event.image && (
+                      <img
+                        src={event.image}
+                        className="card-img-top event-img"
+                        alt={event.title}
+                      />
+                    )}
+                    <div className="card-body d-flex flex-column">
+                      <h5 className="card-title d-flex justify-content-between align-items-center">
+                        {event.title} {isExpired(event.startTime) && <span className="badge bg-danger">Expired</span>}
+                      </h5>
+                      <p className="text-muted mb-1">{new Date(event.startTime).toLocaleString()}</p>
+                      <p className="card-text flex-grow-1">{event.description.substring(0, 100)}...</p>
+                      <div className="d-flex mt-auto">
+                        <button
+                          className="btn btn-sm btn-primary me-2"
+                          onClick={(e) => { e.stopPropagation(); navigate(`/events/${event._id}/edit`); }}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="btn btn-sm btn-danger"
+                          onClick={(e) => { e.stopPropagation(); deleteEvent(event._id); }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -149,61 +169,149 @@ const AdminDashboard = () => {
           )}
         </div>
 
-        {/* Toggle Button */}
-        <div className="col-md-5 mb-4">
-        <div className="d-flex justify-content-end">
-        <button
-          className="btn btn-success mb-3"
-          onClick={() => setShowControllers(!showControllers)}
-    >
-      {showControllers ? 'Hide Pending Controllers' : 'Show Pending Controllers'}
-        </button>
-        </div>
-
-
-          {/* Toggle Section */}
-          {showControllers && (
-            <>
-              <h2>Pending Controllers</h2>
-              {loadingControllers ? (
-                <div className="d-flex justify-content-center my-5">
-                  <div className="spinner-border text-secondary" role="status" />
-                </div>
-              ) : pendingControllers.length === 0 ? (
-                <p>No pending controllers.</p>
-              ) : (
-                <ul className="list-group">
-                  {pendingControllers.map((controller) => (
-                    <li
-                      key={controller._id}
-                      className="list-group-item d-flex justify-content-between align-items-center"
-                    >
-                      <div>
-                        {controller.name} <br />
-                        <small className="text-muted">{controller.email}</small>
-                      </div>
-                      <div>
-                        <button
-                          className="btn btn-success btn-sm me-2"
-                          onClick={() => approveController(controller._id)}
-                        >
-                          Approve
-                        </button>
-                        <button
-                          className="btn btn-danger btn-sm"
-                          onClick={() => rejectController(controller._id)}
-                        >
-                          Reject
-                        </button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </>
+        {/* Pending Controllers */}
+        <div className="col-lg-4 col-md-12 mb-4">
+          <h2 className="mb-3">Pending Controllers</h2>
+          {loadingControllers ? (
+            <div className="d-flex justify-content-center my-3">
+              <div className="spinner-border text-secondary" role="status" />
+            </div>
+          ) : pendingControllers.length === 0 ? (
+            <p className="text-muted">No pending controllers.</p>
+          ) : (
+            <ul className="list-group">
+              {pendingControllers.map((controller) => (
+                <li
+                  key={controller._id}
+                  className="list-group-item d-flex justify-content-between align-items-center shadow-sm mb-2 rounded"
+                >
+                  <div>
+                    <strong>{controller.name}</strong> <br />
+                    <small className="text-muted">{controller.email}</small>
+                  </div>
+                  <button
+                    className="btn btn-outline-primary btn-sm"
+                    onClick={() => {
+                      setSelectedController(controller);
+                      setShowControllerModal(true);
+                    }}
+                  >
+                    Action
+                  </button>
+                </li>
+              ))}
+            </ul>
           )}
         </div>
       </div>
+
+      {/* Event Details Modal */}
+      {/* Event Details Modal */}
+<Modal
+  show={showEventModal}
+  onHide={() => setShowEventModal(false)}
+  size="lg"
+  centered
+>
+  <Modal.Header closeButton className="bg-primary text-white">
+    <Modal.Title>
+      <i className="bi bi-calendar-event me-2"></i>Event Details
+    </Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    {selectedEvent && (
+      <div className="row">
+        {/* Left side - image */}
+        <div className="col-md-5 text-center mb-3 mb-md-0">
+          {selectedEvent.image ? (
+            <img
+              src={selectedEvent.image}
+              className="img-fluid rounded shadow-sm"
+              alt={selectedEvent.title}
+              style={{ maxHeight: "260px", objectFit: "cover" }}
+            />
+          ) : (
+            <div
+              className="d-flex align-items-center justify-content-center bg-light rounded shadow-sm"
+              style={{ height: "260px" }}
+            >
+              <i className="bi bi-image text-muted" style={{ fontSize: "2rem" }}></i>
+            </div>
+          )}
+        </div>
+
+        {/* Right side - details */}
+        <div className="col-md-7">
+          <h4 className="fw-bold mb-2 d-flex align-items-center">
+            {selectedEvent.title}
+            {isExpired(selectedEvent.startTime) && (
+              <span className="badge bg-danger ms-2">Expired</span>
+            )}
+          </h4>
+
+          <ul className="list-unstyled mb-3">
+            <li className="mb-2">
+              <i className="bi bi-clock text-primary me-2"></i>
+              <strong>Date & Time:</strong>{" "}
+              {new Date(selectedEvent.startTime).toLocaleString()}
+            </li>
+            <li className="mb-2">
+              <i className="bi bi-geo-alt text-primary me-2"></i>
+              <strong>Location:</strong> {selectedEvent.location}
+            </li>
+            <li className="mb-2">
+              <i className="bi bi-people text-primary me-2"></i>
+              <strong>Capacity:</strong> {selectedEvent.capacity}
+            </li>
+            <li className="mb-2">
+              <i className="bi bi-currency-rupee text-primary me-2"></i>
+              <strong>Payment:</strong>{" "}
+              {selectedEvent.isPaid ? `₹${selectedEvent.price}` : "Free"}
+            </li>
+          </ul>
+
+          <div
+            className="p-3 bg-light rounded border"
+            style={{ maxHeight: "130px", overflowY: "auto" }}
+          >
+            <p className="mb-0">
+              <strong>Description:</strong> <br />
+              {selectedEvent.description}
+            </p>
+          </div>
+        </div>
+      </div>
+    )}
+  </Modal.Body>
+  <Modal.Footer className="bg-light">
+    <Button variant="secondary" onClick={() => setShowEventModal(false)}>
+      Close
+    </Button>
+  </Modal.Footer>
+</Modal>
+
+
+      {/* Controller Modal */}
+      <Modal show={showControllerModal} onHide={() => setShowControllerModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Controller Approval</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedController && (
+            <div>
+              <p>Do you want to approve or reject the controller?</p>
+              <p>
+                <strong>{selectedController.name}</strong> <br />
+                <small>{selectedController.email}</small>
+              </p>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="danger" onClick={handleReject}>Reject</Button>
+          <Button variant="success" onClick={handleApprove}>Approve</Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

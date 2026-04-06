@@ -1,0 +1,23 @@
+/* Card hover effect */
+.hover-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.hover-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+/* Event image styling */
+.event-img {
+  max-height: 250px;
+  object-fit: cover;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+/* Responsive tweaks */
+@media (max-width: 992px) {
+  .hover-card {
+    margin-bottom: 1rem;
+  }
+}
